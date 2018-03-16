@@ -16,6 +16,7 @@ else
 fi
 cd /home/$USERNAME/
 git clone -b master https://github.com/f1xpl/openauto.git
+wget https://raw.githubusercontent.com/shivasiddharth/openauto/development/Requirements.txt -P /home/$USERNAME/openauto/
 sed 's/#.*//' /home/$USERNAME/openauto/Requirements.txt | xargs sudo apt-get install -y
 git clone -b master https://github.com/f1xpl/aasdk.git
 mkdir aasdk_build
@@ -29,3 +30,5 @@ mkdir openauto_build
 cd ./openauto_build
 cmake -DCMAKE_BUILD_TYPE=Release -DRPI3_BUILD=TRUE -DAASDK_INCLUDE_DIRS="/home/$USERNAME/aasdk/include" -DAASDK_LIBRARIES="/home/$USERNAME/aasdk/lib/libaasdk.so" -DAASDK_PROTO_INCLUDE_DIRS="/home/$USERNAME/aasdk_build" -DAASDK_PROTO_LIBRARIES="/home/$USERNAME/aasdk/lib/libaasdk_proto.a" ../openauto
 make
+echo "sudo /home/pi/openauto/bin/autoapp" >> /home/pi/.config/lxsession/LXDE-pi/autostart
+/home/pi/openauto/bin/autoapp
