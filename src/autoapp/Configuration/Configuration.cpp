@@ -36,6 +36,10 @@ const std::string Configuration::cGeneralHandednessOfTrafficTypeKey = "General.H
 const std::string Configuration::cVideoFPSKey = "Video.FPS";
 const std::string Configuration::cVideoResolutionKey = "Video.Resolution";
 const std::string Configuration::cVideoScreenDPIKey = "Video.ScreenDPI";
+const std::string Configuration::cVideoOMXLayerIndexKey = "Video.OMXLayerIndex";
+
+const std::string Configuration::cAudioMusicAudioChannelEnabled = "Audio.MusicAudioChannelEnabled";
+const std::string Configuration::cAudioSpeechAudioChannelEnabled = "Audio.SpeechAudioChannelEnabled";
 
 const std::string Configuration::cBluetoothAdapterTypeKey = "Bluetooth.AdapterType";
 const std::string Configuration::cBluetoothRemoteAdapterAddressKey = "Bluetooth.RemoteAdapterAddress";
@@ -82,6 +86,8 @@ void Configuration::load()
                                                                                                            aasdk::proto::enums::VideoResolution::_480p));
         screenDPI_ = iniConfig.get<size_t>(cVideoScreenDPIKey, 140);
 
+        omxLayerIndex_ = iniConfig.get<int32_t>(cVideoOMXLayerIndexKey, 1);
+
         enableTouchscreen_ = iniConfig.get<bool>(cInputEnableTouchscreenKey, true);
         this->readButtonCodes(iniConfig);
 
@@ -89,11 +95,15 @@ void Configuration::load()
                                                                                           static_cast<uint32_t>(BluetoothAdapterType::NONE)));
 
         bluetoothRemoteAdapterAddress_ = iniConfig.get<std::string>(cBluetoothRemoteAdapterAddressKey, "");
+
+        musicAudioChannelEnabled_ = iniConfig.get<bool>(cAudioMusicAudioChannelEnabled, true);
+        speechAudiochannelEnabled_ = iniConfig.get<bool>(cAudioSpeechAudioChannelEnabled, true);
     }
     catch(const boost::property_tree::ini_parser_error& e)
     {
         OPENAUTO_LOG(warning) << "[Configuration] failed to read configuration file: " << cConfigFileName
-                            << ", error: " << e.what();
+                            << ", error: " << e.what()
+                            << ". Using default configuration.";
         this->reset();
     }
 }
@@ -105,10 +115,13 @@ void Configuration::reset()
     videoFPS_ = aasdk::proto::enums::VideoFPS::_60;
     videoResolution_ = aasdk::proto::enums::VideoResolution::_480p;
     screenDPI_ = 140;
+    omxLayerIndex_ = 1;
     enableTouchscreen_ = true;
     buttonCodes_.clear();
     bluetoothAdapterType_ = BluetoothAdapterType::NONE;
     bluetoothRemoteAdapterAddress_ = "";
+    musicAudioChannelEnabled_ = true;
+    speechAudiochannelEnabled_ = true;
 }
 
 void Configuration::save()
@@ -120,12 +133,16 @@ void Configuration::save()
     iniConfig.put<uint32_t>(cVideoFPSKey, static_cast<uint32_t>(videoFPS_));
     iniConfig.put<uint32_t>(cVideoResolutionKey, static_cast<uint32_t>(videoResolution_));
     iniConfig.put<size_t>(cVideoScreenDPIKey, screenDPI_);
+    iniConfig.put<int32_t>(cVideoOMXLayerIndexKey, omxLayerIndex_);
 
     iniConfig.put<bool>(cInputEnableTouchscreenKey, enableTouchscreen_);
     this->writeButtonCodes(iniConfig);
 
     iniConfig.put<uint32_t>(cBluetoothAdapterTypeKey, static_cast<uint32_t>(bluetoothAdapterType_));
     iniConfig.put<std::string>(cBluetoothRemoteAdapterAddressKey, bluetoothRemoteAdapterAddress_);
+
+    iniConfig.put<bool>(cAudioMusicAudioChannelEnabled, musicAudioChannelEnabled_);
+    iniConfig.put<bool>(cAudioSpeechAudioChannelEnabled, speechAudiochannelEnabled_);
     boost::property_tree::ini_parser::write_ini(cConfigFileName, iniConfig);
 }
 
@@ -179,6 +196,16 @@ void Configuration::setScreenDPI(size_t value)
     screenDPI_ = value;
 }
 
+void Configuration::setOMXLayerIndex(int32_t value)
+{
+    omxLayerIndex_ = value;
+}
+
+int32_t Configuration::getOMXLayerIndex() const
+{
+    return omxLayerIndex_;
+}
+
 bool Configuration::getTouchscreenEnabled() const
 {
     return enableTouchscreen_;
@@ -217,6 +244,26 @@ std::string Configuration::getBluetoothRemoteAdapterAddress() const
 void Configuration::setBluetoothRemoteAdapterAddress(const std::string& value)
 {
     bluetoothRemoteAdapterAddress_ = value;
+}
+
+bool Configuration::musicAudioChannelEnabled() const
+{
+    return musicAudioChannelEnabled_;
+}
+
+void Configuration::setMusicAudioChannelEnabled(bool value)
+{
+    musicAudioChannelEnabled_ = value;
+}
+
+bool Configuration::speechAudioChannelEnabled() const
+{
+    return speechAudiochannelEnabled_;
+}
+
+void Configuration::setSpeechAudioChannelEnabled(bool value)
+{
+    speechAudiochannelEnabled_ = value;
 }
 
 void Configuration::readButtonCodes(boost::property_tree::ptree& iniConfig)

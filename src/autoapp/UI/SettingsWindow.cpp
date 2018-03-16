@@ -72,6 +72,7 @@ void SettingsWindow::onSave()
     }
 
     configuration_->setScreenDPI(static_cast<size_t>(ui_->horizontalSliderScreenDPI->value()));
+    configuration_->setOMXLayerIndex(ui_->spinBoxOmxLayerIndex->value());
     configuration_->setTouchscreenEnabled(ui_->checkBoxEnableTouchscreen->isChecked());
     this->saveButtonCheckBoxes();
 
@@ -89,6 +90,9 @@ void SettingsWindow::onSave()
     }
 
     configuration_->setBluetoothRemoteAdapterAddress(ui_->lineEditExternalBluetoothAdapterAddress->text().toStdString());
+
+    configuration_->setMusicAudioChannelEnabled(ui_->checkBoxMusicAudioChannel->isChecked());
+    configuration_->setSpeechAudioChannelEnabled(ui_->checkBoxSpeechAudioChannel->isChecked());
 
     configuration_->save();
     this->close();
@@ -124,6 +128,7 @@ void SettingsWindow::load()
     ui_->radioButton720p->setChecked(configuration_->getVideoResolution() == aasdk::proto::enums::VideoResolution::_720p);
     ui_->radioButton1080p->setChecked(configuration_->getVideoResolution() == aasdk::proto::enums::VideoResolution::_1080p);
     ui_->horizontalSliderScreenDPI->setValue(static_cast<int>(configuration_->getScreenDPI()));
+    ui_->spinBoxOmxLayerIndex->setValue(configuration_->getOMXLayerIndex());
 
     ui_->checkBoxEnableTouchscreen->setChecked(configuration_->getTouchscreenEnabled());
     this->loadButtonCheckBoxes();
@@ -133,6 +138,9 @@ void SettingsWindow::load()
     ui_->radioButtonUseExternalBluetoothAdapter->setChecked(configuration_->getBluetoothAdapterType() == configuration::BluetoothAdapterType::REMOTE);
     ui_->lineEditExternalBluetoothAdapterAddress->setEnabled(configuration_->getBluetoothAdapterType() == configuration::BluetoothAdapterType::REMOTE);
     ui_->lineEditExternalBluetoothAdapterAddress->setText(QString::fromStdString(configuration_->getBluetoothRemoteAdapterAddress()));
+
+    ui_->checkBoxMusicAudioChannel->setChecked(configuration_->musicAudioChannelEnabled());
+    ui_->checkBoxSpeechAudioChannel->setChecked(configuration_->speechAudioChannelEnabled());
 }
 
 void SettingsWindow::loadButtonCheckBoxes()
@@ -224,9 +232,9 @@ void SettingsWindow::onShowBindings()
                             + QString("Call end -> [O] \n")
                             + QString("Play -> [X] \n")
                             + QString("Pause -> [C] \n")
-                            + QString("Previous track -> [V] \n")
-                            + QString("Next track -> [N] \n")
-                            + QString("Toggle play -> [B] \n")
+                            + QString("Previous track -> [V]/[Media Previous] \n")
+                            + QString("Next track -> [N]/[Media Next] \n")
+                            + QString("Toggle play -> [B]/[Media Play] \n")
                             + QString("Voice command -> [M] \n")
                             + QString("Wheel left -> [1] \n")
                             + QString("Wheel right -> [2]");
